@@ -419,6 +419,9 @@ defmodule Instructor do
     validation_context = Keyword.get(params, :validation_context, %{})
     max_retries = Keyword.get(params, :max_retries)
     mode = Keyword.get(params, :mode, :tools)
+
+    {cast_all, params} = Keyword.pop(params, :cast_all, &cast_all/2)
+
     params = params_for_mode(mode, response_model, params)
 
     model =
@@ -430,7 +433,7 @@ defmodule Instructor do
 
     with {:llm, {:ok, response}} <- {:llm, adapter(config).chat_completion(params, config)},
          {:valid_json, {:ok, params}} <- {:valid_json, parse_response_for_mode(mode, response)},
-         changeset <- cast_all(model, params),
+         changeset <- cast_all.(model, params),
          {:validation, %Ecto.Changeset{valid?: true} = changeset, _response} <-
            {:validation, call_validate(response_model, changeset, validation_context), response} do
       {:ok, changeset |> Ecto.Changeset.apply_changes()}
