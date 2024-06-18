@@ -446,6 +446,8 @@ defmodule Instructor do
 
       {:validation, changeset, response} ->
         if max_retries > 0 do
+          Logger.debug("Response: #{inspect(response)}")
+          Logger.debug("Changeset: #{inspect(changeset)}")
           errors = Instructor.ErrorFormatter.format_errors(changeset)
 
           Logger.debug("Retrying LLM call for #{inspect(response_model)}:\n\n #{inspect(errors)}",
